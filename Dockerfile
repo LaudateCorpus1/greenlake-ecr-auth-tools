@@ -11,34 +11,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 # Note: If building behind a proxy use:
 #
-#       docker build --build-arg http_proxy=http://proxy.example.com \
-#                    --build-arg https_proxy=http://proxy.example.com \
-#                    --tag greenlake-ecr-auth-tools .
+#    docker build --build-arg http_proxy=http://proxy.example.com \
+#                 --build-arg https_proxy=http://proxy.example.com \
+#                 --tag greenlake-ecr-auth-tools .
 
 ARG ALPINE=alpine:3.13.5
 
 FROM $ALPINE as kubectl
 ARG KUBECTL_VERSION="v1.21.3"
 
-RUN apk add --update ca-certificates \
- && apk add --update -t deps curl \
+RUN apk add --update --no-cache curl ca-certificates \
  && curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
  && echo "$(curl -L https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256)  kubectl" > checksumfile \
  # Note: Don't use pipe (|) here -- so that building reliably
  #       detects any checksum error
  && sha256sum -c checksumfile \
- && chmod +x kubectl \
- && apk del --purge deps \
- && rm /var/cache/apk/*
+ && chmod +x kubectl
 
 FROM $ALPINE
 ARG AWSCLI_VERSION=1.16.314
 ARG USER=ecr
 
 COPY --from=kubectl /kubectl /usr/local/bin/kubectl
-RUN apk add -U --no-cache python3 cmd:pip3 py3-virtualenv groff ca-certificates
+RUN apk add --update --no-cache python3 cmd:pip3 py3-virtualenv \
+      groff ca-certificates
 
 RUN addgroup ${USER} \
     && adduser \
