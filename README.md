@@ -17,3 +17,28 @@ limitations under the License.
 # greenlake-ecr-auth-tools
 
 Tooling for authenticating with ECR from a container.
+
+## Image Details
+
+The docker image built from the Dockerfile can be downloaded as follows:
+
+```
+docker pull ghcr.io/hewlettpackard/greenlake-ecr-auth-tools
+```
+
+## Releasing
+
+A new image can be built by adding a tag, for example:
+
+```
+git tag 0.0.1
+git push origin --tags
+```
+
+This will result in an updated docker image being built automatically
+(via a github action). The resulting docker image will have a matching
+tag number, eg
+
+```
+docker pull ghcr.io/hewlettpackard/greenlake-ecr-auth-tools:0.0.1
+```
